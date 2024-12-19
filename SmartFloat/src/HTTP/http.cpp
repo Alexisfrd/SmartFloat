@@ -10,6 +10,7 @@
 #include "SEN0208/SEN0208.h"
 #include "WIFI/wifiproject.h"
 #include "HTTP/http.h"
+#include "../config.h"
 
 
 void POST(String jdata, String url, std::function<void(String)> callback) {
@@ -61,14 +62,6 @@ void handleLoginAndSendData(String sensorName, float sensorValue, String dateStr
   POST(jdata, "/login", handleLoginResponseAndSendData);
 }
 
-void handleLoginResponse(String response) {
-  
-}
-
-void handlePushDataResponse(String response) {
-
-}
-
 String getFormattedDate() {
   time_t now = time(nullptr);
   struct tm* timeinfo = localtime(&now);
@@ -86,4 +79,12 @@ String parseToken(String response) {
   
   // Retourner le token comme une chaîne de caractères
   return String(token);
+}
+
+void handleLoginResponse(String response) {
+  
+}
+
+void handlePushDataResponse(String response) {
+
 }

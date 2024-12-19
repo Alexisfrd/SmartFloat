@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ESP32Ping.h> // Assurez-vous d'avoir installé la bibliothèque ESP32Ping
-
+#include "../config.h"
 
 
 
