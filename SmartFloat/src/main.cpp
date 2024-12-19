@@ -10,26 +10,28 @@
 #include "SEN0208/SEN0208.h"
 #include "WIFI/wifiproject.h"
 #include "HTTP/http.h"
+#include "PH/ph.h"
+#include "config.h"
 
-#define SENSOR_PIN  16 // GPIO15
-#define ECHOPIN 2 // Pin to receive echo pulse
-#define TRIGPIN 15 // Pin to send trigger pulse
+/**********************************************************/
+/*                    variables globale                   */
+/**********************************************************/
 
-String derniereDate = ""; // Initialisation de derniereDate
-
-
-int dist = 0;
-int phValue = 0;
-float doValue = 0; 
+sensorData g_sensorData;
 
 String dateString = "";
+String derniereDate = ""; // Initialisation de derniereDate
 
-/**
- * Config Capteur de température DS18B20
- */
-float Temperature = 0;
-OneWire oneWire(SENSOR_PIN);
+/**********************************************************/
+/*        Config Capteur de température DS18B20           */
+/**********************************************************/
+
+OneWire oneWire(TEMP_PIN);
 DallasTemperature DS18B20(&oneWire);
+
+/**********************************************************/
+/*                      machine à état                    */
+/**********************************************************/
 
 enum STEP {
   DI = 0,
@@ -60,8 +62,6 @@ void setup() {
 
   pinMode(ECHOPIN, INPUT);
   pinMode(TRIGPIN, OUTPUT);
-
-
 }
 
 void loop() {
@@ -69,34 +69,33 @@ void loop() {
   switch (step)
   {
     case DI:
-      dist = distance();
-      Serial.print("Distance: ");
-      Serial.println(dist);
+      Serial.print("PH, ");
+      g_sensorData.dist = distance_mode_4();
       step = PH;
       break;
 
     case PH:
       Serial.print("PH, ");
+      g_sensorData.phValue = readPH();
       step = TEMP;
       break;
 
     case TEMP:
-      DS18B20.requestTemperatures();
-      Temperature = DS18B20.getTempCByIndex(0);
-      
       Serial.print("TEMP, ");
+      DS18B20.requestTemperatures();
+      g_sensorData.Temperature = DS18B20.getTempCByIndex(0);
       step = SEND;
       break;
     
     case SEND:
       dateString = getFormattedDate();
 
-      doValue = random(0, 1001) / 100.0; // à retirer quand bckend finit
-      handleLoginAndSendData("DO", doValue, dateString, "DO", "pass", 0); // à retirer quand bckend finit
+      g_sensorData.doValue = random(0, 1001) / 100.0; // à retirer quand backend finit
+      handleLoginAndSendData("DO", g_sensorData.doValue, dateString, "DO", "pass", 0); // à retirer quand backend finit
 
-      handleLoginAndSendData("PH", phValue, dateString, "PH", "pass1", 1);
-      handleLoginAndSendData("TEMP", Temperature, dateString, "TEMP", "pass2", 2);
-      handleLoginAndSendData("DEBIT", dist, dateString, "DEBIT", "pass3", 3);
+      handleLoginAndSendData("PH", g_sensorData.phValue, dateString, "PH", "pass1", 1);
+      handleLoginAndSendData("TEMP", g_sensorData.Temperature, dateString, "TEMP", "pass2", 2);
+      handleLoginAndSendData("DEBIT", g_sensorData.dist, dateString, "DEBIT", "pass3", 3);
 
       Serial.print("SEND, ");
       step = SLEEP;
