@@ -21,7 +21,7 @@ sensorData g_sensorData;
 
 String dateString = "";
 String derniereDate = ""; // Initialisation de derniereDate
-
+int distance_test = 0;
 /**********************************************************/
 /*        Config Capteur de température DS18B20           */
 /**********************************************************/
@@ -44,9 +44,9 @@ enum STEP {
 void setup() {
   // Initialisation de la communication série
   Serial.begin(115200);
-
+#if HTTP == 1
   init_Wifi();
-  
+#endif
   // Initialiser le générateur de nombres aléatoires
   randomSeed(analogRead(32));
 
@@ -65,12 +65,12 @@ void setup() {
 }
 
 void loop() {
-  
+
   switch (step)
   {
     case DI:
-      Serial.print("PH, ");
-      g_sensorData.dist = distance_mode_4();
+      Serial.print("DISTANCE, ");
+      g_sensorData.dist = average_distance();
       step = PH;
       break;
 
@@ -84,7 +84,11 @@ void loop() {
       Serial.print("TEMP, ");
       DS18B20.requestTemperatures();
       g_sensorData.Temperature = DS18B20.getTempCByIndex(0);
+#if HTTP == 1
       step = SEND;
+#else
+      step = SLEEP;
+#endif
       break;
     
     case SEND:
@@ -111,7 +115,6 @@ void loop() {
       Serial.println("default");
       break;
   }
-
 /*
   distance();
   delay(1000); // Attendre une seconde avant de générer de nouvelles données

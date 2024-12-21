@@ -12,6 +12,7 @@
 #define PASSWORD "5vCMZAn4pd3b"
 #define SSID1 "Airbox-33EE"
 
+#define HTTP 0
 
 struct sensorData
 {
