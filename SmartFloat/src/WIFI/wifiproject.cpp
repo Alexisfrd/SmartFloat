@@ -4,6 +4,7 @@
 #include <HTTPClient.h>
 #include <ESP32Ping.h> // Assurez-vous d'avoir installé la bibliothèque ESP32Ping
 #include "../config.h"
+#include <LED/led.h>
 
 
 
@@ -22,9 +23,10 @@ void init_Wifi(){
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connexion au WiFi...");
+    Serial.println("Connexion au WiFi..."); 
   }
   Serial.println("Connecté au WiFi");
+  ledConnecteWifi();
 
   // Afficher l'adresse IP
   Serial.print("Adresse IP: ");
@@ -36,7 +38,10 @@ void init_Wifi(){
   Serial.println(serverName);
   if (Ping.ping(remote_ip)) {
     Serial.println("Ping successful");
+    ledPingOk();
   } else {
     Serial.println("Ping failed");
+    ledPingFail();
+    
   }
 }
