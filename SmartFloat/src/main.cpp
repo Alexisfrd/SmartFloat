@@ -12,6 +12,7 @@
 #include "HTTP/http.h"
 #include "PH/ph.h"
 #include "config.h"
+#include "LED/led.h"
 
 /**********************************************************/
 /*                    variables globale                   */
@@ -21,7 +22,7 @@ sensorData g_sensorData;
 
 String dateString = "";
 String derniereDate = ""; // Initialisation de derniereDate
-int distance_test = 0;
+
 /**********************************************************/
 /*        Config Capteur de température DS18B20           */
 /**********************************************************/
@@ -62,6 +63,8 @@ void setup() {
 
   pinMode(ECHOPIN, INPUT);
   pinMode(TRIGPIN, OUTPUT);
+
+  ledInit();
 }
 
 void loop() {
@@ -84,14 +87,16 @@ void loop() {
       Serial.print("TEMP, ");
       DS18B20.requestTemperatures();
       g_sensorData.Temperature = DS18B20.getTempCByIndex(0);
-#if HTTP == 1
+
       step = SEND;
-#else
-      step = SLEEP;
-#endif
       break;
     
     case SEND:
+
+      Serial.println("SEND");
+      ledSend();
+      
+    #if HTTP == 1
       dateString = getFormattedDate();
 
       g_sensorData.doValue = random(0, 1001) / 100.0; // à retirer quand backend finit
@@ -102,12 +107,13 @@ void loop() {
       handleLoginAndSendData("DEBIT", g_sensorData.dist, dateString, "DEBIT", "pass3", 3);
 
       Serial.print("SEND, ");
+    #endif
       step = SLEEP;
       break;
 
     case SLEEP:
+
       Serial.println("SLEEP");
-      delay(1000);
       step = DI;
       break;
     
