@@ -65,6 +65,10 @@ void setup() {
   pinMode(TRIGPIN, OUTPUT);
 
   ledInit();
+  while(1){
+    ledTestRGB();
+  }
+  
 }
 
 void loop() {

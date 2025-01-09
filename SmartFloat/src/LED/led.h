@@ -8,5 +8,6 @@ void ledSend();
 void ledConnecteWifi();
 void ledPingOk();
 void ledPingFail();
+void ledTestRGB();
 
 #endif // LD_H
